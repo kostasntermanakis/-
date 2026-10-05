@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Για την πριγκιπισσούλα μου ❤️</title>
+    <!-- Γραμματοσειρά Nunito από το Google Fonts για πιο γλυκό/bubbly look -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Βιβλιοθήκη για το εφέ κομφετί -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            overflow-x: hidden;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Στυλ για τις 2 οθόνες (Αρχική και Παιχνίδι) */
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            position: absolute;
+            top: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95) translateY(20px);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateY(0);
+            position: relative;
+            top: 0;
+        }
+
+        /* --- Αρχική Οθόνη --- */
+        .intro-card {
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 30px;
+            padding: 4rem 3rem;
+            text-align: center;
+            max-width: 650px;
+            backdrop-filter: blur(12px);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 20px 40px rgba(255, 105, 135, 0.2);
+            animation: float 4s ease-in-out infinite;
+            margin-top: 10vh;
+        }
+
+        .intro-text {
+            font-size: 1.8rem;
+            color: #d81b60;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            padding: 18px 40px;
+            border-radius: 40px;
+            color: #d81b60;
+            font-size: 1.5rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 25px rgba(255, 154, 158, 0.6);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 18px 40px rgba(255, 154, 158, 0.8);
+        }
+
+        /* --- Οθόνη Παιχνιδιού --- */
+        .title {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: 900;
+            text-shadow: 2px 2px 10px rgba(255, 105, 135, 0.5);
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: float-title 3s ease-in-out infinite;
+        }
+
+        @keyframes float-title {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 950px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(255, 105, 135, 0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 105, 135, 0.4);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .emoji {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .emoji svg {
+            width: 1em;
+            height: 1em;
+        }
+
+        .card:hover .emoji {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .name {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #d81b60;
+            text-align: center;
+        }
+
+        /* --- Στυλ για το Popup/Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 182, 193, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(216, 27, 96, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid #ff9a9e;
+            position: absolute;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #d81b60;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .modal-message {
+            font-size: 1.3rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-heart {
+            font-size: 3.5rem;
+            color: #ff4081;
+            animation: pulse 1s infinite;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-heart svg {
+            width: 1em;
+            height: 1em;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            color: #d81b60;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 154, 158, 0.5);
+        }
+
+        .close-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.7);
+        }
+
+        /* Ιπτάμενες καρδούλες στο background */
+        .floating-heart {
+            position: fixed;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            animation: float-up linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(110vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Η αρχική οθόνη υποδοχής -->
+    <div id="introScreen" class="screen active">
+        <div class="intro-card">
+            <h1 class="title" style="margin-bottom: 1rem;">Έκπληξη! 🎁</h1>
+            <p class="intro-text">Ξέρω ότι θέλεις να πάρεις πολλά ζωάκια, οπότε τώρα είναι η ευκαιρία σου μωράκι μου! ❤️
+            </p>
+            <button class="start-btn" onclick="startGame()">Πάμε να πάρουμε ζωάκια 🐾</button>
+        </div>
+    </div>
+
+    <!-- Η οθόνη του παιχνιδιού (εμφανίζεται αφού πατήσει το κουμπί) -->
+    <div id="gameScreen" class="screen">
+        <h1 class="title">Διάλεξε το ζωάκι σου! 💖</h1>
+        <div class="grid" id="grid">
+            <!-- Οι κάρτες θα μπουν εδώ από την Javascript -->
+        </div>
+    </div>
+
+    <!-- Το αναδυόμενο παράθυρο (Modal) -->
+    <div class="modal-overlay" id="modalOverlay">
+
+        <!-- Οθόνη 1 του Modal -->
+        <div class="modal-content" id="modalContent1">
+            <div class="modal-heart">✨</div>
+            <h2 class="modal-title">Συγχαρητήρια!</h2>
+            <p class="modal-message">Βρήκες ένα καινούριο ζωάκι!</p>
+            <button class="close-btn" onclick="showSecondScreen()">Σε λατρεύω!</button>
+        </div>
+
+        <!-- Οθόνη 2 (Έκπληξη) του Modal -->
+        <div class="modal-content" id="modalContent2" style="display: none; visibility: hidden;">
+            <div class="modal-heart" id="modalHeart2">❤️</div>
+            <h2 class="modal-title">Έκπληξη!</h2>
+            <p class="modal-message" id="modalMessage2">Γλυκούλα μου μόλις κέρδισες...</p>
+            <button class="close-btn" onclick="closeModal()">Πίσω στα ζωάκια</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Το SVG εικονίδιο για τον Ιππόκαμπο
+        const seahorseSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <defs>
+                <linearGradient id="seaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff758c;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ff7eb3;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path fill="url(#seaGrad)" d="M260.004 19.164c-9.648 1.39-19.07 2.235-23.43 4.054c-2.557 1.067-2.826 1.534-3.11 2.4c-.282.863-.543 3.853 1.932 9.88l3.643 8.873l-9.085 3.073c-28.644 9.69-47.62 38.362-48.017 63.627c-.696 44.055 39.936 82.666 61.355 119.49c6.824 11.732 4.738 25.54-.455 39.22c-5.193 13.676-13.8 28.374-23.465 44.36c-19.33 31.972-42.898 68.978-52.547 106.822c-6.672 26.167 3.367 43.43 19.096 55.682c15.73 12.253 38.023 17.54 50.17 15.902c19.262-2.595 32.47-15.11 39.91-30.416c7.44-15.305 7.876-33.077 3.17-42.47c-3.16-6.31-9.583-11.794-16.926-15.014s-15.397-3.924-20.447-2.48c-16.272 4.65-21.495 15.99-22.44 28.195c-.404 5.208.382 10.223 1.61 14.37c2.89-4.933 6.16-9.945 9.764-14.31c3.488-4.22 7.043-8.04 12.565-10.255c2.76-1.107 6.33-1.676 9.868-.705c3.537.972 6.495 3.364 8.492 6.053c3.54 4.77 4.53 10.117 4.555 15.86c.024 5.746-1.222 11.948-4.322 17.796c-6.202 11.696-21.378 20.488-41.666 16.45c-17.63-3.51-30.796-14.66-35.545-29.497s-1.416-32.257 9.16-48.82c22.857-35.8 62.226-57.237 93.674-80.788c15.724-11.776 29.463-23.952 38.73-37.89c9.267-13.94 14.37-29.483 13.02-49.9c-1.37-20.728-15.83-40.585-36.8-58.366c-20.97-17.783-47.835-33.06-71.06-44.968l-.004-.002l-.006-.002c-3.178-1.635-5.58-4.987-6.383-7.943c-.8-2.957-.547-5.49-.054-7.727c.984-4.473 3.063-8.143 5.878-11.404c2.815-3.262 6.48-7.02 13.35-6.627c3.434.196 7.09 2.23 9.175 4.803c1.98 2.443 2.96 5.102 3.602 7.96c.035-.044.51.51 2.578 1.336c2.998 1.2 8.278 2.27 14.746 2.65c12.935.754 30.663-1 47.942-5.302c18.94-4.715 38.375-.027 54.477 4.852c3.38 1.024 5.777 1.828 8.823 2.826c-.08-.308-.25-.606-.32-.914c-2.138-9.455-.64-18.675 1.34-26.57c.6-2.397 1.268-4.403 1.925-6.547c-12.96 4.157-28.064 6.265-42.94 4.624c-18.95-2.09-38.058-11.507-47.237-30.97c-10.787-2.446-18.605-8.153-24.193-14.274c-5.4-5.917-9.345-11.812-14.103-16.996zm11.46 37.718c7.955 0 14.403 6.28 14.403 14.03c0 7.748-6.448 14.03-14.402 14.03s-14.402-6.282-14.402-14.03c0-7.75 6.448-14.03 14.402-14.03zm-46.49 86.364c45.517 40.05 69.796 73.63 73.883 104.927c2.044 15.65-1.495 30.552-9.78 43.48c-8.286 12.926-20.992 23.986-37.276 33.895l-9.357-15.377c14.73-8.96 25.218-18.464 31.48-28.23c6.26-9.768 8.62-19.69 7.085-31.435c-3.068-23.488-23.848-54.964-67.924-93.746zm-101.453 19.77c11.56 35.447 39.336 66.16 72.933 93.74c1.728-6.023 3.852-12.013 7.01-17.6c3.29-5.82 7.986-11.18 13.998-15.04c-10.137-14.124-22.746-29.812-33.214-47.34a54 54 0 0 1-2.85-.09c-8.232-.495-18.54-2.312-29.166-4.85c-10.046-2.398-20.136-5.463-28.71-8.82z"/></svg>`;
+
+        // Η λίστα με τα ζωάκια
+        const animals = [
+            { label: "Σκυλάκι", phrase: "ένα σκυλάκι", emoji: "🐶" },
+            { label: "Γατούλα", phrase: "μία γατούλα", emoji: "🐱" },
+            { label: "Λαγουδάκι", phrase: "ένα λαγουδάκι", emoji: "🐰" },
+            { label: "Πάντα", phrase: "ένα πάντα", emoji: "🐼" },
+            { label: "Πιγκουινάκος", phrase: "έναν πιγκουινάκο", emoji: "🐧" },
+            { label: "Ιππόκαμπος", phrase: "έναν ιππόκαμπο", emoji: seahorseSvg },
+            { label: "Κοάλα", phrase: "ένα κοάλα", emoji: "🐨" },
+            { label: "Αλεπουδίτσα", phrase: "μία αλεπουδίτσα", emoji: "🦊" },
+            { label: "Ελεφαντάκι", phrase: "ένα ελεφαντάκι", emoji: "🐘" },
+            { label: "Δελφίνι", phrase: "ένα δελφίνι", emoji: "🐬" },
+            { label: "Πεταλούδα", phrase: "μία πεταλούδα", emoji: "🦋" },
+            { label: "Τιγράκι", phrase: "ένα τιγράκι", emoji: "🐯" },
+            // Τα 3 νέα ζωάκια!
+            { label: "Αρκουδάκι", phrase: "ένα αρκουδάκι", emoji: "🐻" },
+            { label: "Μαιμουδάκι", phrase: "ένα μαιμουδάκι", emoji: "🐒" },
+            { label: "Καμηλοπάρδαλη", phrase: "μία καμηλοπάρδαλη", emoji: "🦒" }
+        ];
+
+        const grid = document.getElementById('grid');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalContent1 = document.getElementById('modalContent1');
+        const modalContent2 = document.getElementById('modalContent2');
+        const modalMessage2 = document.getElementById('modalMessage2');
+        const modalHeart2 = document.getElementById('modalHeart2');
+
+        const introScreen = document.getElementById('introScreen');
+        const gameScreen = document.getElementById('gameScreen');
+
+        let currentAnimal = null;
+
+        // Δημιουργούμε καρδούλες να πετάνε στο background
+        for (let i = 0; i < 25; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 8 + 6) + 's';
+            heart.style.animationDelay = (Math.random() * 5) + 's';
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.body.appendChild(heart);
+        }
+
+        // Φτιάχνουμε τα κουτάκια για τα ζώα
+        animals.forEach(animal => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="emoji">${animal.emoji}</div>
+                <div class="name">${animal.label}</div>
+            `;
+            card.onclick = () => winAnimal(animal);
+            grid.appendChild(card);
+        });
+
+        // Όταν πατάει το "Πάμε να πάρουμε ζωάκια"
+        function startGame() {
+            // Ρίχνουμε λίγα κομφετί για τον ενθουσιασμό της έναρξης
+            confetti({
+                particleCount: 50,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#ff9a9e', '#ffffff']
+            });
+
+            // Εναλλαγή οθονών
+            introScreen.classList.remove('active');
+            setTimeout(() => {
+                gameScreen.classList.add('active');
+            }, 300); // Περιμένουμε λίγο να κάνει fade out
+        }
+
+        // Όταν κερδίζει ένα ζωάκι (Οθόνη 1)
+        function winAnimal(animal) {
+            currentAnimal = animal;
+
+            // Ρίχνουμε κομφετί
+            const duration = 2500;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 6,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff9a9e', '#ff4081', '#ffffff', '#fecfef']
+                });
+                confetti({
+                    particleCount: 6,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff9a9e', '#ff4081', '#ffffff', '#fecfef']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            modalContent1.style.display = 'block';
+            modalContent1.style.visibility = 'visible';
+
+            modalContent2.style.display = 'none';
+            modalContent2.style.visibility = 'hidden';
+
+            modalOverlay.classList.add('active');
+        }
+
+        // Όταν πατήσει το "Σε λατρεύω" (Οθόνη 2)
+        function showSecondScreen() {
+            modalContent1.style.display = 'none';
+            modalContent1.style.visibility = 'hidden';
+
+            modalMessage2.innerHTML = `Γλυκούλα μου μόλις κέρδισες <b>${currentAnimal.phrase}</b>!<br><br>Σ' αγαπάω πάρα πολύ! 💕`;
+            modalHeart2.innerHTML = currentAnimal.emoji;
+
+            modalContent2.style.display = 'block';
+            modalContent2.style.visibility = 'visible';
+
+            // Έξτρα κομφετί για την έκπληξη!
+            confetti({
+                particleCount: 80,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#ff9a9e', '#ff4081', '#ffffff']
+            });
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>
